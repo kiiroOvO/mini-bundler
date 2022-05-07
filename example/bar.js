@@ -1,1 +1,3 @@
-export function bar() { }
+export function bar() {
+  console.log("bar")
+}

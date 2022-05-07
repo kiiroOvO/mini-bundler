@@ -1,3 +1,3 @@
 import { foo } from "./foo.js"
+console.log("begin")
 foo()
-console.log("something")

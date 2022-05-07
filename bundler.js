@@ -8,7 +8,7 @@ function createAsset(filePath) {
   const source = fs.readFileSync(filePath, {
     encoding: 'utf-8'
   })
-  // ast
+  // transform to ast
   // @balbel/parser
   const ast = parser.parse(source, {
     sourceType: "module"
@@ -22,7 +22,8 @@ function createAsset(filePath) {
     }
   })
   const id = ID++;
-  // babel
+  // babel-core + babel-preset-env
+  // @babel/code 和 @babel/preset-env 这里有点问题
   const { code } = babel.transformFromAst(ast, null, {
     presets: ['env']
   })
@@ -39,6 +40,7 @@ function createGraph(entry) {
   for (const asset of queue) {
     // 相对路径
     const dirname = path.dirname(asset.path)
+    // import relationship
     asset.mapping = {};
     asset.dependencies.forEach((relativePath) => {
       // relative -> absolute
@@ -59,8 +61,9 @@ function bundle(graph) {
         ${module.code}
       },
       ${JSON.stringify(module.mapping)}
-    ],` // ,
+    ],` // ","
   })
+  // cjs
   const result = `
     (function(modules){
       function require(id){
@@ -80,10 +83,19 @@ function bundle(graph) {
   return result
 }
 
-const graph = createGraph('./example/entry.js')
-const result = bundle(graph)
 
-fs.writeFile('./example/output.js', result, {}, err => {
-  console.log(err);
-})
-console.log('graph', result);
+
+function build() {
+  const dir = "./dist"
+  const graph = createGraph('./example/entry.js')
+  console.log(graph);
+
+  const result = bundle(graph)
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir)
+  }
+  fs.writeFileSync(`${dir}/output.js`, result, {})
+}
+
+build()
