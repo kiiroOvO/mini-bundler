@@ -85,9 +85,9 @@ function bundle(graph) {
 
 
 
-function build() {
+function build(entryPath) {
   const dir = "./dist"
-  const graph = createGraph('./example/entry.js')
+  const graph = createGraph(entryPath)
   console.log(graph);
 
   const result = bundle(graph)
@@ -98,4 +98,4 @@ function build() {
   fs.writeFileSync(`${dir}/output.js`, result, {})
 }
 
-build()
+build('./example/entry.js')
